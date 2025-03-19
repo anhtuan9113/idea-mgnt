@@ -321,4 +321,51 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// Delete attachment
+router.delete('/:ideaId/attachments/:attachmentId', auth, async (req, res) => {
+  try {
+    const ideaId = parseInt(req.params.ideaId);
+    const attachmentId = parseInt(req.params.attachmentId);
+
+    // Check if idea exists and user has permission
+    const idea = await prisma.idea.findUnique({
+      where: { id: ideaId },
+      include: { author: true },
+    });
+
+    if (!idea) {
+      return res.status(404).json({ message: 'Idea not found' });
+    }
+
+    // Check if user has permission to delete attachment
+    if (req.user.role !== ROLES.ADMIN && idea.authorId !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this attachment' });
+    }
+
+    // Get attachment details
+    const attachment = await prisma.attachment.findUnique({
+      where: { id: attachmentId },
+    });
+
+    if (!attachment) {
+      return res.status(404).json({ message: 'Attachment not found' });
+    }
+
+    // Delete file from filesystem
+    const filePath = path.join(__dirname, '..', attachment.url);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // Delete attachment from database
+    await prisma.attachment.delete({
+      where: { id: attachmentId },
+    });
+
+    res.json({ message: 'Attachment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router; 
