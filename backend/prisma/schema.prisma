@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  password      String
+  role          String   @default("USER")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  authoredIdeas Idea[]   @relation("AuthoredIdeas")
+  assignedIdeas Idea[]   @relation("AssignedIdeas")
+  notifications Notification[]
+}
+
+model Idea {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  category    String?
+  status      String   @default("DRAFT")
+  tags        String   @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  authorId    Int
+  author      User     @relation("AuthoredIdeas", fields: [authorId], references: [id])
+  assignedTo  User?    @relation("AssignedIdeas", fields: [assignedToId], references: [id])
+  assignedToId Int?
+  attachments Attachment[]
+  notifications Notification[]
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  type      String
+  size      Int
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  ideaId    Int
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  message   String
+  type      String   @default("INFO")
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  ideaId    Int
+  idea      Idea     @relation(fields: [ideaId], references: [id])
+} 
