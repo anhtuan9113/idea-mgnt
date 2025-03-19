@@ -44,10 +44,8 @@ const Notifications = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `http://localhost:3001/api/notifications`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `${process.env.REACT_APP_API_URL}/notifications`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setNotifications(response.data);
     } catch (error) {
@@ -61,19 +59,11 @@ const Notifications = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:3001/api/notifications/${notificationId}/read`,
+        `${process.env.REACT_APP_API_URL}/notifications/${notificationId}/read`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setNotifications((prev) =>
-        prev.map((notification) =>
-          notification.id === notificationId
-            ? { ...notification, read: true }
-            : notification
-        )
-      );
+      fetchNotifications();
     } catch (error) {
       setError('Failed to mark notification as read');
     }

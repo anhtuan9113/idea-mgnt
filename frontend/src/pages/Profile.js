@@ -46,7 +46,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:3001/api/users/${user.id}`,
+        `${process.env.REACT_APP_API_URL}/users/${user.id}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -75,7 +75,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:3001/api/users/${user.id}/password`,
+        `${process.env.REACT_APP_API_URL}/users/${user.id}/password`,
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,

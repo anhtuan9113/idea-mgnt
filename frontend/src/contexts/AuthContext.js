@@ -20,47 +20,41 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const response = await axios.get('http://localhost:3001/api/users/me', {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUser(response.data);
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        localStorage.removeItem('token');
+        setUser(null);
       }
-    } catch (error) {
-      localStorage.removeItem('token');
-      setUser(null);
-    } finally {
-      setLoading(false);
     }
   };
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/login', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
         email,
         password
       });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      setUser(user);
-      return user;
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user);
+      return response.data;
     } catch (error) {
-      throw error.response?.data?.message || 'Login failed';
+      throw error;
     }
   };
 
-  const register = async (name, email, password) => {
+  const register = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/users/register', {
-        name,
-        email,
-        password
-      });
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/register`, userData);
       return response.data;
     } catch (error) {
-      throw error.response?.data?.message || 'Registration failed';
+      throw error;
     }
   };
 

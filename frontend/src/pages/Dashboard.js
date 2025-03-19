@@ -41,8 +41,8 @@ const Dashboard = () => {
   const fetchIdeas = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:3001/api/ideas', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/ideas`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       setIdeas(response.data);
     } catch (error) {
