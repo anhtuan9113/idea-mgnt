@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://idea-mgnt.onrender.com/api';
+// Get the API URL from environment variable or use a default value
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+// Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
   headers: {

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -23,9 +23,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/users/me');
         setUser(response.data);
       } catch (error) {
         console.error('Error checking auth:', error);
@@ -33,11 +31,12 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     }
+    setLoading(false);
   };
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+      const response = await api.post('/auth/login', {
         email,
         password
       });
@@ -51,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/register`, userData);
+      const response = await api.post('/users/register', userData);
       return response.data;
     } catch (error) {
       throw error;
